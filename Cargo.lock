@@ -541,18 +541,25 @@ dependencies = [
 ]
 
 [[package]]
-name = "news-cli"
+name = "news_api"
 version = "0.1.0"
 dependencies = [
- "dotenv",
  "reqwest",
  "serde",
  "serde_json",
- "termimad",
  "thiserror",
- "tokio",
  "ureq",
  "url",
+]
+
+[[package]]
+name = "news_cli"
+version = "0.1.0"
+dependencies = [
+ "dotenv",
+ "news_api",
+ "termimad",
+ "tokio",
 ]
 
 [[package]]

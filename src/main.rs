@@ -1,6 +1,3 @@
-#![allow(unused)]
-// category=business
-mod news_api;
 mod theme;
 
 use std::error::Error;
