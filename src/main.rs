@@ -1,38 +1,39 @@
 #![allow(unused)]
-
-/* https://youtu.be/4km2UijVC3M */
-
-// 411cbce350f0425f984a82d3fd91600f
+// category=business
+mod news_api;
+mod theme;
 
 use std::error::Error;
-use serde::Deserialize;
-use serde_json;
-use ureq;
+use dotenv::dotenv;
+use news_api::{Article, Country, Endpoint, NewsAPI};
 
-#[derive(Deserialize, Debug)]
-struct Article {
-    title: String,
-    url: String
-}
+fn render_articles(articles: &Vec<Article>) {
+    let theme = theme::default();
 
-#[derive(Deserialize, Debug)]
-struct Articles {
-    articles: Vec<Article>
-}
+    theme.print_text("# Top headlines\n\n");
 
-fn get_articles(url: &str) -> Result<Articles, Box<dyn Error>> {
-    let response = ureq::get(url).call()?.into_string()?;
-
-    let articles: Articles = serde_json::from_str(&response)?;
-    
-    Ok(articles)
-}
-
-fn main() {
-    let url = "https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=411cbce350f0425f984a82d3fd91600f";
-    
-    match get_articles(url) {
-        Ok(v) => { println!("{:#?}", v); }
-        Err(e) => { println!("{}", e); }
+    for i in articles {
+        theme.print_text(&format!("`{}`", i.title()));
+        theme.print_text(&format!("> *{}*", i.url()));
+        theme.print_text("---");
     }
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    dotenv().ok();
+
+    let api_key = std::env::var("API_KEY")?;
+
+    let mut news_api = NewsAPI::new(&api_key);
+
+    news_api
+        .endpoint(Endpoint::TopHeadlines)
+        .country(Country::Us);
+
+    let news_api_response = news_api.fetch_async().await?;
+
+    render_articles(&news_api_response.articles());
+
+    Ok(())
 }
