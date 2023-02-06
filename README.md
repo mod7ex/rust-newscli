@@ -1,0 +1,1 @@
+> cargo install bacon && `$ bacon` same work of nodemon
